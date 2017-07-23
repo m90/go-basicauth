@@ -86,3 +86,22 @@ func TestWith(t *testing.T) {
 		})
 	}
 }
+
+func TestWith_BadHeader(t *testing.T) {
+	t.Run("bad header", func(t *testing.T) {
+		wrapped := With(Credentials{"user", "s3cr3t"})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("OK"))
+		}))
+		ts := httptest.NewServer(wrapped)
+		defer ts.Close()
+		req, _ := http.NewRequest(http.MethodGet, ts.URL, nil)
+		req.Header.Set("Authorization", "zalgo")
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Errorf("Unexpected error %v", err)
+		}
+		if res.StatusCode != http.StatusUnauthorized {
+			t.Errorf("Expected 401 response, got %v", res.StatusCode)
+		}
+	})
+}
