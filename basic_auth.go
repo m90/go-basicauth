@@ -13,7 +13,7 @@ func With(auth Credentials) func(http.Handler) http.Handler {
 				return
 			}
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted Area"`)
-			http.Error(w, "Not authorized", http.StatusUnauthorized)
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		})
 	}
 }
